@@ -1,0 +1,1002 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Second law(Principle Of Increase Of Entropy)</title>
+    <link rel="stylesheet" href="css/MOMstyle.css" />
+    <script src='js/jquery.min.js'></script>
+    <script src='js/jquery-ui.min.js'></script>
+
+</head>
+
+<body onload="varinit();start();simstate()">
+<!-- Defining Container for Simulation -->
+<noscript>
+    The simulation requires JavaScript to be enabled.
+</noscript>
+<div id="container">
+    <!-- Replace TITLE with simulation title to be displayed next to logo-->
+    <div id="simtitle">Principle Of Increase Of Entropy</div>
+    <!-- Region for simulation display -->
+    <canvas id="simscreen" height="400px" width="550px" ></canvas>
+    <div id="titleincanvas"></div>
+    <!-- Region for comment / question prompts -->
+    <div id="commentboxleft">
+        <p id="p1" style="line-height:0.4"></p>
+        <p id="p2" style="line-height:0.4"></p>
+        <p id="p3" style="line-height:0.4"></p>
+    </div>
+    <div id="commentboxright">
+        <p id="p4" style="line-height:0.4"></p>
+        <p id="p5" style="line-height:0.4"></p>
+        <p id="p6" style="line-height:0.4"></p>
+    </div>
+    <div id="subsystem1">
+        <p id="ps1" style="line-height:0.4"></p>
+    </div>
+    <div id="subsystem2">
+        <p id="ps2" style="line-height:0.4"></p>
+    </div>
+
+    <!-- DND-Title of region for variables display -->
+    <div id="vartitle">VARIABLES</div>
+
+    <!-- Region for Input parameters of simulation -->
+    <div id="variables">
+        <div class="variable">
+            <br><br><br><br><br><div class="varname"><p title="Link Length" style="font-size:75%;">Temperature, T<sub>1</sub> (°C)</p>
+            <br>
+            <input id="l1spinner"></div>
+            <br>
+            <div id="l1slider"></div>
+            <br>
+            <div class="varname"><p title="Link Length" style="font-size:75%;">Temperature, T<sub>2</sub> (°C)</p>
+                <br>
+                <input id="l2spinner"></div>
+            <br>
+            <div id="l2slider"></div>
+        </div>
+    </div>
+    <!-- DND-Title of region for controls display -->
+    <div id="ctrltitle">CONTROLS</div>
+    <!-- Region for User controls of simulation -->
+    <div id="controls">
+        <img id="playpausebutton" onclick="simstate()" src="images/blueplaydull.png" />
+        <img id="rotationbutton" onclick="location.reload();" src="images/bluecwdull.png" />
+        <button id="rpbutton" onclick="move2()" style="position: relative;left: 40px;top: 20px;">Remove Partition</button>
+        <div style="position:relative; left: 15px;top:-85px;">
+
+			<button class="tooltip" style="border:1px solid darkred; color:black;text-align:justify">Abbreviations
+			<span class="tooltiptext" style="left: 0px;width: 250px">
+                Subsystem 1 and 2 comprise a composite system in an adiabatic enclosure. When the partition is
+removed, the two fluids mix.<br><br>
+			▲S<sub>1</sub> = Entropy change of Fluid_1 (fluid in subsystem 1) after mixing<br><br>
+			▲S<sub>2</sub> = Entropy change of Fluid_2 (fluid in subsystem 2) after mixing<br><br>
+                ▲S<sub>universe</sub> = Entropy change of universe/isolated system after mixing<br><br>
+                c<sub>1</sub> = Specific heat of fluid in subsystem 1<br><br>
+                c<sub>2</sub> = Specific heat of fluid in subsystem 2<br><br>
+                m<sub>1</sub> = Mass of fluid in subsystem 1 = 1 kg<br><br>
+                m<sub>2</sub> = Mass of fluid in subsystem 2 = 1 kg<br><br>
+                T<sub>1</sub> = Temperature of fluid in subsystem 1<br><br>
+                T<sub>2</sub> = Temperature of fluid in subsystem 2<br><br>
+                t<sub>f</sub> = After mixing, final temperature of fluids at equilibrium<br><br>
+			</span>
+    </button>
+
+            <button class="tooltip" style="border:1px solid darkred; color:black;text-align:justify;left: 100px">Formulae
+			<span class="tooltiptext" style="left: 0px;width: 200px">
+			t<sub>f</sub> = (m<sub>1</sub>c<sub>1</sub>T<sub>1</sub>+m<sub>2</sub>c<sub>2</sub>T<sub>2</sub>)/(m<sub>1</sub>c<sub>1</sub>+m<sub>2</sub>c<sub>2</sub>)<br><br>
+                ▲S<sub>1</sub> = m<sub>1</sub>c<sub>1</sub> ln((t<sub>f</sub>+273)/(T<sub>1</sub>+273))<br><br>
+                ▲S<sub>2</sub> = m<sub>2</sub>c<sub>2</sub> ln((t<sub>f</sub>+273)/(T<sub>2</sub>+273))<br><br>
+			▲S<sub>universe</sub> = ▲S<sub>1</sub> + ▲S<sub>2</sub><br>
+			</span>
+    </button>
+
+            <button class="tooltip" style="border:1px solid darkred; color:black;text-align:justify;top: -24px; left: 68px">Aim
+			<span class="tooltiptext" style="left: 0px;width: 230px">
+			Aim of the experiment:<br>To show that ▲S<sub>universe</sub> is always >= 0.
+			</span>
+    </button>
+
+        </div>
+    </div>
+    <!-- DND-Copyright display-->
+    <div id="copyright" title="Developer : SOLVEr"> Copyright &copy; SOLVE The Virtual Lab @ NITK Surathkal </div>
+    <div id="controls2" align="left">
+        <span style="font-size:55%"><b>Fluid 1</b></span><br>
+        <span style="font-size:45%">Water</span><input type="radio" id="radio1"  name="chart1" onclick="check1();"><br>
+        <span style="font-size:45%">Air</span><input type="radio" id="radio2"  name="chart1" onclick="check2();"><br>
+        <span style="font-size:45%">Butane</span><input type="radio" id="radio3"  name="chart1" onclick="check3();"><br>
+
+    </div>
+
+    <div id="controls3" align="left">
+        <span style="font-size:55%"><b>Fluid 2</b></span><br>
+        <span style="font-size:45%">Water</span><input type="radio" id="radio4"  name="chart2" onclick="check4();"><br>
+        <span style="font-size:45%">Air</span><input type="radio" id="radio5"  name="chart2" onclick="check5();"><br>
+        <span style="font-size:45%">Butane</span><input type="radio" id="radio6"  name="chart2" onclick="check6();"><br>
+
+    </div>
+</div><!-- Container div close -->
+<script type="text/javascript" >
+
+
+    var t1 =0;
+    var t2 =0;
+    var tf =0;
+    var s1 =0;
+    var s2 =0;
+    var Suniv =0;
+    var flagg=true;
+    var step=0;
+    var T1 =0;
+    var T2 =0;
+    var r1 =false;
+    var r2 =false;
+    var r3 =false;
+    var r4 =false;
+    var r5 =false;
+    var r6 =false;
+    var c1 =0;
+    var c2 =0;
+
+    // balls start here
+    // var KE;
+    // var Na;
+    // var R;
+    var temp=0;
+    var temp2=0;
+    var temps=0;
+    var temps2=0;
+    var input1=0;
+    var input2=0;
+    var prev=temps;
+    var prev2=temps2;
+    var flag = 0;
+    // R=8.314;
+    // Na=6.022*10^23;
+
+    var k=1;
+    var ball=[];
+    var ballCount=10;
+    var dx=2+temps;
+    var dy=-2+temps;
+    for(var i=0;i<ballCount;i++){
+        ball[i]={x:0,y:0,dx:2+temps,dy:-2,color:"navy"}
+
+    }
+    var ballRadius=10;
+
+
+    var temp2=0;
+    var temps2=0;
+    var input2=0;
+    var prev2=temps2;
+
+
+    var k2=1;
+    var ball2=[];
+    var ballCount2=10;
+    var dx2=2+temps;
+    var dy2=-2+temps;
+    for(var i=0;i<ballCount;i++){
+        ball2[i]={x:0,y:0,dx:2+temps,dy:-2,color:"red"}
+
+    }
+    var ballRadius2=20;
+
+
+
+    var canvas;
+    var ctx;
+    var x;
+    var y;
+    var simstatus = 0;
+    function start() {
+        //var temp=0;
+        //var temps=0;
+        document.getElementById("ps1").innerHTML=" SUBSYSTEM 1  ";
+        document.getElementById("ps2").innerHTML=" SUBSYSTEM 2  ";
+        document.getElementById("radio1").checked=true;
+        document.getElementById("radio4").checked=true;
+        temp_val($('#l1spinner').spinner("value"));
+        temp2_val($('#l2spinner').spinner("value"));
+        canvas=document.getElementById("simscreen");
+        ctx=canvas.getContext("2d");
+        ctx.canvas.width=550;
+        ctx.canvas.height=400;
+        x=canvas.height-20;
+        y=canvas.width/2;
+        draw();
+    }
+
+    function draw(){
+        //console.log(canvas.width,canvas.height);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        if(flag == 0) {
+            ctx.lineWidth = 20;
+            ctx.strokeRect(80,100,200,200);
+            ctx.strokeRect(280,100,200,200);
+        } else {
+            ctx.strokeRect(80,100,400,200);
+        }
+
+        for(var i=0;i<ballCount;i++){
+
+            if(k===1){
+
+                ball[i].x=280;
+                ball[i].y=100;
+                ball2[i].x=480;
+                ball2[i].y=100;
+
+            }
+            ctx.beginPath();
+            ctx.arc(ball[i].x,ball[i].y,ballRadius,0,Math.PI*2);
+            // ctx.arc(ball2[i].x,ball2[i].y,ballRadius,0,Math.PI*2);
+            ctx.fillStyle=ball[i].color;
+            // ctx.fillStyle=ball2[i].color;
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            // ctx.arc(ball[i].x,ball[i].y,ballRadius,0,Math.PI*2);
+            ctx.arc(ball2[i].x,ball2[i].y,ballRadius,0,Math.PI*2);
+            // ctx.fillStyle=ball[i].color;
+            ctx.fillStyle=ball2[i].color;
+            ctx.fill();
+            ctx.closePath();
+
+
+            if(simstatus === 1){
+
+                T1=temp+273;
+                T2=temp2+273;
+
+
+
+
+
+
+                if(document.getElementById("radio1").checked==true){
+                    r1=true;
+                }
+                else{
+                    r1=false;
+                }
+                if(document.getElementById("radio2").checked==true){
+                    r2=true;
+                }
+                else{
+                    r2=false;
+                }
+                if(document.getElementById("radio3").checked==true){
+                    r3=true;
+                }
+                else{
+                    r3=false;
+                }
+                if(document.getElementById("radio4").checked==true){
+                    r4=true;
+                }
+                else{
+                    r4=false;
+                }
+                if(document.getElementById("radio5").checked==true){
+                    r5=true;
+                }
+                else{
+                    r5=false;
+                }
+                if(document.getElementById("radio6").checked==true){
+                    r6=true;
+                }
+                else{
+                    r6=false;
+                }
+
+
+
+                if(r1==true)
+                {
+                    if(temp==200)
+                    {
+                        c1=4.5;
+                    }
+                    else if(temp==205)
+                    {
+                        c1=4.53;
+                    }
+                    else
+                    {
+                        c1=4.56;
+                    }
+                }
+
+
+                if(r2==true)
+                {
+                    if(temp==200)
+                    {
+                        c1=1.026;
+                    }
+                    else if(temp==205)
+                    {
+                        c1=1.027;
+                    }
+                    else
+                    {
+                        c1=1.028;
+                    }
+                }
+
+                if(r3==true)
+                {
+                    if(temp==200)
+                    {
+                        c1=2.459;
+                    }
+                    else if(temp==205)
+                    {
+                        c1=2.479;
+                    }
+                    else
+                    {
+                        c1=2.498;
+                    }
+                }
+
+                if(r4==true)
+                {
+                    if(temp==200)
+                    {
+                        c2=4.5;
+                    }
+                    else if(temp==205)
+                    {
+                        c2=4.53;
+                    }
+                    else
+                    {
+                        c2=4.56;
+                    }
+                }
+
+                if(r5==true)
+                {
+                    if(temp==200)
+                    {
+                        c2=1.026;
+                    }
+                    else if(temp==205)
+                    {
+                        c2=1.027;
+                    }
+                    else
+                    {
+                        c2=1.028;
+                    }
+                }
+
+                if(r6==true)
+                {
+                    if(temp==200)
+                    {
+                        c2=2.459;
+                    }
+                    else if(temp==205)
+                    {
+                        c2=2.479;
+                    }
+                    else
+                    {
+                        c2=2.498;
+                    }
+                }
+
+
+
+                tf=(((c1 * T1)+(c2 * T2))/(c1+c2))-273;
+
+
+
+
+                if(document.getElementById("radio1").checked==true && temp==200)
+                {s1=4.5 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio1").checked==true && temp==205)
+                {s1=4.53 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio1").checked==true && temp==210)
+                {s1=4.56 * Math.log((tf+273)/(temp+273));}
+
+                if(document.getElementById("radio2").checked==true && temp==200)
+                {s1=1.026 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio2").checked==true && temp==205)
+                {s1=1.027 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio2").checked==true && temp==210)
+                {s1=1.028 * Math.log((tf+273)/(temp+273));}
+
+                if(document.getElementById("radio3").checked==true && temp==200)
+                {s1=2.459 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio3").checked==true && temp==205)
+                {s1=2.479 * Math.log((tf+273)/(temp+273));}
+                if(document.getElementById("radio3").checked==true && temp==210)
+                {s1=2.498 * Math.log((tf+273)/(temp+273));}
+
+                if(document.getElementById("radio4").checked==true && temp==200)
+                {s2=4.5 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio4").checked==true && temp==205)
+                {s2=4.53 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio4").checked==true && temp==210)
+                {s2=4.56 * Math.log((tf+273)/(temp2+273));}
+
+                if(document.getElementById("radio5").checked==true && temp==200)
+                {s2=1.026 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio5").checked==true && temp==205)
+                {s2=1.027 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio5").checked==true && temp==210)
+                {s2=1.028 * Math.log((tf+273)/(temp2+273));}
+
+                if(document.getElementById("radio6").checked==true && temp==200)
+                {s2=2.459 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio6").checked==true && temp==205)
+                {s2=2.479 * Math.log((tf+273)/(temp2+273));}
+                if(document.getElementById("radio6").checked==true && temp==210)
+                {s2=2.498 * Math.log((tf+273)/(temp2+273));}
+
+                Suniv=s1+s2;
+
+                document.getElementById("p1").innerHTML="Initial temp of subsystem 1 (T<sub>1</sub>) : "+temp+" °C";
+                document.getElementById("p2").innerHTML="Initial temp of subsystem 2 (T<sub>2</sub>) : "+temp2+" °C";
+                document.getElementById("p3").innerHTML="   ";
+                document.getElementById("p4").innerHTML="   ";
+                document.getElementById("p5").innerHTML="   ";
+                document.getElementById("p6").innerHTML="   ";
+            }
+
+
+            else{
+                step=0;
+            }
+
+
+        }
+        // console.log(ball[0].x,ball[0].y)
+        // console.log(temp);
+        speed(temp,temp2);
+        // console.log(ball[0].dx,ball[0].dy)
+        //rebound();
+        if (flag == 0) {
+            move();
+        } else {
+            move2();
+        }
+        // rebound();
+    }
+
+
+    function move(){
+        if(temp==0 || simstatus == 0)
+        {
+            for(var i=0;i<ballCount;i++){
+                ball[i].x=ball[i].x;
+                ball[i].y=ball[i].y;
+                // ball2[i].x=ball2[i].x;
+                // ball2[i].y=ball2[i].y;
+            }
+        }
+        else
+        {
+            for(var i=0;i<ballCount;i++){
+                if(ball[i].x+ball[i].dx>=280||ball[i].x+ball[i].dx<=80){
+                    ball[i].dx=-ball[i].dx+Math.random();
+                } else {
+                    ball[i].x=ball[i].x+ball[i].dx+Math.random();
+                }
+                if(ball[i].y+ball[i].dy>=300||ball[i].y+ball[i].dy<=100)
+                {
+                    ball[i].dy=-ball[i].dy+Math.random()
+                } else {
+                    ball[i].y=ball[i].y+ball[i].dy+Math.random();
+                }
+                // if(ball2[i].x+ball2[i].dx<=300||ball2[i].x+ball2[i].dx>=500)
+                // {
+                //     ball2[i].dx=-ball2[i].dx+Math.random()
+                // } else {
+                //     ball2[i].x=ball2[i].x+ball2[i].dx+Math.random();
+                // }
+                // if(ball2[i].y+ball2[i].dy>=300||ball2[i].y+ball2[i].dy<=100)
+                // {
+                //     ball2[i].dy=-ball2[i].dy+Math.random()
+                // } else {
+                //     ball2[i].y=ball2[i].y+ball2[i].dy+Math.random();
+                // }
+                k=0;}
+        }
+
+
+        if(temp2==0 || simstatus == 0)
+        {
+            for(var i=0;i<ballCount;i++){
+                // ball[i].x=ball[i].x;
+                // ball[i].y=ball[i].y;
+                ball2[i].x=ball2[i].x;
+                ball2[i].y=ball2[i].y;
+            }
+        }
+        else
+        {
+            for(var i=0;i<ballCount;i++){
+                // if(ball[i].x+ball[i].dx>=300||ball[i].x+ball[i].dx<=100){
+                //     ball[i].dx=-ball[i].dx+Math.random();
+                // } else {
+                //     ball[i].x=ball[i].x+ball[i].dx+Math.random();
+                // }
+                // if(ball[i].y+ball[i].dy>=300||ball[i].y+ball[i].dy<=100)
+                // {
+                //     ball[i].dy=-ball[i].dy+Math.random()
+                // } else {
+                //     ball[i].y=ball[i].y+ball[i].dy+Math.random();
+                // }
+                if(ball2[i].x+ball2[i].dx<=280||ball2[i].x+ball2[i].dx>=480)
+                {
+                    ball2[i].dx=-ball2[i].dx+Math.random()
+                } else {
+                    ball2[i].x=ball2[i].x+ball2[i].dx+Math.random();
+                }
+                if(ball2[i].y+ball2[i].dy>=300||ball2[i].y+ball2[i].dy<=100)
+                {
+                    ball2[i].dy=-ball2[i].dy+Math.random()
+                } else {
+                    ball2[i].y=ball2[i].y+ball2[i].dy+Math.random();
+                }
+                k2=0;}
+        }
+
+        // for(var i=0;i<ballCount;i++){
+        //     ball[i].x=ball[i].x+ball[i].dx+Math.random();
+        //     ball[i].y=ball[i].y+ball[i].dy+Math.random();
+        //     k=0;
+        // }
+
+    }
+
+
+function move2() {
+    document.getElementById("p3").innerHTML="Final temp of mixed fluid (t<sub>f</sub>) : "+tf.toFixed(1)+" °C";
+    document.getElementById("p4").innerHTML="▲S<sub>1</sub> : "+s1.toFixed(5)+" kJ/kgK";
+    document.getElementById("p5").innerHTML="▲S<sub>2</sub> : "+s2.toFixed(5)+" kJ/kgK";
+    document.getElementById("p6").innerHTML="▲S<sub>universe</sub> : "+Suniv.toFixed(5)+" kJ/kgK";
+    document.getElementById("ps1").innerHTML="  ";
+    document.getElementById("ps2").innerHTML="  ";
+    flag = 1;
+    if(temp==0 || simstatus == 0)
+        {
+            for(var i=0;i<ballCount;i++){
+                ball[i].x=ball[i].x;
+                ball[i].y=ball[i].y;
+                // ball2[i].x=ball2[i].x;
+                // ball2[i].y=ball2[i].y;
+            }
+        }
+
+        else
+        {
+            for(var i=0;i<ballCount;i++){
+                if(ball[i].x+ball[i].dx<=80||ball[i].x+ball[i].dx>=480){
+                    ball[i].dx=-ball[i].dx+Math.random();
+                } else {
+                    ball[i].x=ball[i].x+ball[i].dx+Math.random();
+                }
+                if(ball[i].y+ball[i].dy>=300||ball[i].y+ball[i].dy<=100)
+                {
+                    ball[i].dy=-ball[i].dy+Math.random()
+                } else {
+                    ball[i].y=ball[i].y+ball[i].dy+Math.random();
+                }
+                // if(ball2[i].x+ball2[i].dx<=100||ball2[i].x+ball2[i].dx>=500)
+                // {
+                //     ball2[i].dx=-ball2[i].dx+Math.random()
+                // } else {
+                //     ball2[i].x=ball2[i].x+ball2[i].dx+Math.random();
+                // }
+                // if(ball2[i].y+ball2[i].dy>=300||ball2[i].y+ball2[i].dy<=100)
+                // {
+                //     ball2[i].dy=-ball2[i].dy+Math.random()
+                // } else {
+                //     ball2[i].y=ball2[i].y+ball2[i].dy+Math.random();
+                // }
+                k=0;}
+        }
+
+    if(temp2==0 || simstatus == 0)
+    {
+        for(var i=0;i<ballCount;i++){
+            // ball[i].x=ball[i].x;
+            // ball[i].y=ball[i].y;
+            ball2[i].x=ball2[i].x;
+            ball2[i].y=ball2[i].y;
+        }
+    }
+
+    else
+    {
+        for(var i=0;i<ballCount;i++){
+            // if(ball[i].x+ball[i].dx<=100||ball[i].x+ball[i].dx>=500){
+            //     ball[i].dx=-ball[i].dx+Math.random();
+            // } else {
+            //     ball[i].x=ball[i].x+ball[i].dx+Math.random();
+            // }
+            // if(ball[i].y+ball[i].dy>=300||ball[i].y+ball[i].dy<=100)
+            // {
+            //     ball[i].dy=-ball[i].dy+Math.random()
+            // } else {
+            //     ball[i].y=ball[i].y+ball[i].dy+Math.random();
+            // }
+            if(ball2[i].x+ball2[i].dx<=80||ball2[i].x+ball2[i].dx>=480)
+            {
+                ball2[i].dx=-ball2[i].dx+Math.random()
+            } else {
+                ball2[i].x=ball2[i].x+ball2[i].dx+Math.random();
+            }
+            if(ball2[i].y+ball2[i].dy>=300||ball2[i].y+ball2[i].dy<=100)
+            {
+                ball2[i].dy=-ball2[i].dy+Math.random()
+            } else {
+                ball2[i].y=ball2[i].y+ball2[i].dy+Math.random();
+            }
+            k2=0;}
+    }
+
+
+
+}
+    function speed(input1,input2){
+        if (input1==205)
+        {input1=280;}
+        else if (input1==210)
+        {input1=600;}
+        else
+        {input1=0.5;}
+        if (input2==205)
+        {input2=280;}
+        else if (input2==210)
+        {input2=600;}
+        else
+        {input2=0.5;}
+        temps=-2-input1/125;//*125;
+        temps2=-2-input2/125;
+        // console.log("temps="+temps);
+        if(temps!=prev){
+            for(var i=0;i<ballCount;i++){
+                ball[i].dx=temps;//ball[i].x+ball[i].dx;
+                ball[i].dy=temps;//ball[i].y+ball[i].dy;
+                //k=0;
+                // ball2[i].dx=temps2;//ball[i].x+ball[i].dx;
+                // ball2[i].dy=temps2
+            }
+        }
+        prev=temps;
+
+        if(temps2!=prev2){
+            for(var i=0;i<ballCount;i++){
+                // ball[i].dx=temps;//ball[i].x+ball[i].dx;
+                // ball[i].dy=temps;//ball[i].y+ball[i].dy;
+                //k=0;
+                ball2[i].dx=temps2;//ball[i].x+ball[i].dx;
+                ball2[i].dy=temps2
+            }
+        }
+        prev2=temps2;
+        //dx=2+temps;
+        //dy=-2+temps;
+        // return new_value;
+    }
+
+    function rebound(){
+        // console.log("hi??"+ball[0].dy);
+        // Math.random() * (max - min) + min;
+        var ran = Math.random();
+        for(var i=0;i<ballCount;i++){
+            if(ball[i].x+ball[i].dx>=280||ball[i].x+ball[i].dx<=80)
+            {
+                // console.log("hi");
+                console.log(Math.random());
+
+                ball[i].dx=-ball[i].dx+ran;
+                //ball[i].x=-ball[i].x;
+            }
+            if(ball[i].y+ball[i].dy>=300||ball[i].y+ball[i].dy<=100)
+            {
+                // console.log("hi");
+                ball[i].dy=-ball[i].dy+ran
+                //ball[i].y=-ball[i].y;
+            }
+            if(ball2[i].x+ball2[i].dx>=280||ball2[i].x+ball2[i].dx<=480)
+            {
+                // console.log("hi");
+                ball2[i].dx=-ball2[i].dx+ran
+                //ball[i].x=-ball[i].x;
+            }
+            if(ball2[i].y+ball2[i].dy>=300||ball2[i].y+ball2[i].dy<=100)
+            {
+                // console.log("hi");
+                ball2[i].dy=-ball2[i].dy+ran
+                //ball[i].y=-ball[i].y;
+            }
+        }
+    }
+
+    setInterval(draw,10);
+    draw();
+    //setTimeout(draw,10);
+
+    // balls end here
+
+    function simstate() {
+        // console.log(k)
+        //  if (k===1){
+
+
+
+        //     document.getElementById('playpausebutton').src="sins/blueplaydull.png";
+        //     k=0;
+        //     $('#l1spinner').spinner("disable");
+        //     $('#l1slider').slider("disable");
+        //     if (temp===0)
+        //     {
+        //         document.getElementById("p6").innerHTML="Entropy of the system, S=0";
+        //     }
+        // }
+        // else if(k === 0) {
+        //     document.getElementById('playpausebutton').src="sins/bluepausedull.png";
+        //     k = 1;
+        //     $('#l1spinner').spinner("enable");
+        //     $('#l1slider').slider("enable");
+        //     document.getElementById("p6").innerHTML="";
+        // }
+
+        if (simstatus == 0){
+            simstatus = 1;
+            document.getElementById('playpausebutton').src="images/bluepausedull.png";
+            // k=0;
+            $('#l1spinner').spinner("disable");
+            $('#l2spinner').spinner("disable");
+
+
+            $('#l1slider').slider("disable");
+            $('#l2slider').slider("disable");
+
+            document.getElementById("rpbutton").disabled=false;
+            document.getElementById("radio1").disabled=true;
+            document.getElementById("radio2").disabled=true;
+            document.getElementById("radio3").disabled=true;
+            document.getElementById("radio4").disabled=true;
+            document.getElementById("radio5").disabled=true;
+            document.getElementById("radio6").disabled=true;
+            // if (temp===0)
+            // {
+            //     document.getElementById("p6").innerHTML="Entropy of the system, S=0";
+            // }
+        }
+        else if(simstatus == 1) {
+            simstatus = 0;
+            document.getElementById('playpausebutton').src="images/blueplaydull.png";
+            $('#l1spinner').spinner("enable");
+            $('#l2spinner').spinner("enable");
+
+
+            $('#l1slider').slider("enable");
+            $('#l2slider').slider("enable");
+
+            document.getElementById("rpbutton").disabled=true;
+            document.getElementById("radio1").disabled=false;
+            document.getElementById("radio2").disabled=false;
+            document.getElementById("radio3").disabled=false;
+            document.getElementById("radio4").disabled=false;
+            document.getElementById("radio5").disabled=false;
+            document.getElementById("radio6").disabled=false;
+            //document.getElementById("p6").innerHTML="";
+        }
+    }
+
+    function temp_val(input){
+
+        temp=input;
+        //console.log(temp)
+        document.getElementById("p1").innerHTML="Initial temp of subsystem 1 (T<sub>1</sub>) : "+temp+" °C";
+        // if(temp===0){
+        //     document.getElementById("p6").innerHTML="Entropy of the system, S=0"
+        // }
+    }
+    function temp2_val(input){
+
+        temp2=input;
+        //console.log(temp)
+        document.getElementById("p2").innerHTML="Initial temp of subsystem 2 (T<sub>2</sub>) : "+temp2+" °C";
+        // if(temp2===0){
+        //     document.getElementById("p6").innerHTML="Entropy of the system, S=0"
+        // }
+    }
+
+    function tf_val(){
+
+        document.getElementById("p3").innerHTML="   ";
+    }
+
+    function s1_val(){
+
+        document.getElementById("p4").innerHTML="    ";
+
+    }
+    function s2_val(){
+
+        document.getElementById("p5").innerHTML="   ";
+
+    }
+
+    function Suniv_val(){
+
+
+        document.getElementById("p6").innerHTML="   ";
+
+    }
+
+    // function kinetic_val(input){
+    //
+    //     KE=(3*R*input)/(2*Na);
+    //     document.getElementById("p2").innerHTML="Kinetic Energy : "+KE+" J";
+    //
+    // }
+    function varinit() {
+
+        varchange();
+
+        //Variable r1 slider and number input types
+
+        $('#l1slider').slider("value", 200);
+        $('#l1spinner').spinner("value", 200);
+        $('#l2slider').slider("value", 200);
+        $('#l2spinner').spinner("value", 200);
+        //console.log(temps)
+        temp_val(200);
+        temp2_val(200);
+        tf_val();
+        s1_val();
+        s2_val();
+        Suniv_val();
+
+    }
+
+    function varchange()
+    {
+
+        // Variable r1 slider and number input types
+
+        $('#l1slider').slider({ max : 210, min : 200, step : 5 });		    // slider initialisation : jQuery widget
+        $('#l1spinner').spinner({ max : 210, min : 200, step : 5 });
+        $('#l2slider').slider({ max : 210, min : 200, step : 5 });          // slider initialisation : jQuery widget
+        $('#l2spinner').spinner({ max : 210, min : 200, step : 5 });     // number initialisation : jQuery widget
+
+        // monitoring change in value and connecting slider and number
+        // monitoring change in value and connecting slider and number
+        // setting trace point coordinate arrays to empty on change of link length
+
+        // temperature
+
+        $( "#l1slider" ).on(  "slide",  function( e, ui ) {
+            $('#l1spinner').spinner("value",ui.value);
+            temp_val(ui.value);
+            //temp2_val(ui.value);
+            // kinetic_val(ui.value);
+            // speed(ui.value);
+            tf_val();
+            s2_val(); //$('#l3spinner').spinner("value")
+            s1_val();
+            Suniv_val();
+        });
+
+        $( "#l1spinner" ).on( "spin",   function( e, ui ) {
+            $('#l1slider').slider("value",ui.value);
+            temp_val(ui.value);
+            //temp2_val(ui.value);
+            // kinetic_val(ui.value);
+            // speed(ui.value);
+            tf_val();
+            s2_val(); //$('#l3spinner').spinner("value")
+            s1_val();
+            Suniv_val();
+        });
+
+
+        $( "#l1spinner" ).on( "change", function() {
+            varchange() } );
+
+        $( "#l2slider" ).on(  "slide",  function( e, ui ) {
+            $('#l2spinner').spinner("value",ui.value);
+            //temp_val(ui.value);
+            temp2_val(ui.value);
+            // kinetic_val(ui.value);
+            // speed(ui.value);
+            tf_val();
+            s2_val(); //$('#l3spinner').spinner("value")
+            s1_val();
+            Suniv_val();
+        });
+
+        $( "#l2spinner" ).on( "spin",   function( e, ui ) {
+            $('#l2slider').slider("value",ui.value);
+            //temp_val(ui.value);
+            temp2_val(ui.value);
+            // kinetic_val(ui.value);
+            // speed(ui.value);
+            tf_val();
+            s2_val(); //$('#l3spinner').spinner("value")
+            s1_val();
+            Suniv_val();
+        });
+
+
+        $( "#l2spinner" ).on( "change", function() {
+            varchange() } );
+
+        temp_val($('#l1spinner').spinner("value"));
+        //temp2_val($('#l1spinner').spinner("value"));
+        // kinetic_val($('#l1spinner').spinner("value"));
+        // speed($('#l1spinner').spinner("value"));
+        //temp_val($('#l2spinner').spinner("value"));
+        temp2_val($('#l2spinner').spinner("value"));
+        // kinetic_val($('#l2spinner').spinner("value"));
+        // speed($('#l2spinner').spinner("value"));
+
+        tf_val();
+        s2_val(); //$('#l3spinner').spinner("value")
+        s1_val();
+        Suniv_val();
+
+
+
+        varupdate();
+    }
+
+    function varupdate()
+    {
+
+        $('#l1slider').slider("value", $('#l1spinner').spinner('value'));
+        $('#l2slider').slider("value", $('#l2spinner').spinner('value')); //updating slider location with change in spinner(debug)
+    }
+
+    function check1() {
+        document.getElementById("radio1").checked = true;
+        document.getElementById("radio2").checked = false;
+        document.getElementById("radio3").checked = false;
+    }
+    function check2() {
+        document.getElementById("radio1").checked = false;
+        document.getElementById("radio2").checked = true;
+        document.getElementById("radio3").checked = false;
+    }
+    function check3() {
+        document.getElementById("radio1").checked = false;
+        document.getElementById("radio2").checked = false;
+        document.getElementById("radio3").checked = true;
+    }
+    function check4() {
+        document.getElementById("radio4").checked = true;
+        document.getElementById("radio5").checked = false;
+        document.getElementById("radio6").checked = false;
+    }
+    function check5() {
+        document.getElementById("radio4").checked = false;
+        document.getElementById("radio5").checked = true;
+        document.getElementById("radio6").checked = false;
+    }
+    function check6() {
+        document.getElementById("radio4").checked = false;
+        document.getElementById("radio5").checked = false;
+        document.getElementById("radio6").checked = true;
+    }
+
+</script>
+</body>
+</html>
